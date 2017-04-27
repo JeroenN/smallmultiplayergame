@@ -11,6 +11,8 @@ using namespace std;
 
 int main()
 {
+    sf::IpAddress computersAddress = sf::IpAddress::getLocalAddress();
+    std::cout<<computersAddress ;
     bool server =false;
     bool client =false;
     sf::UdpSocket socket;
@@ -55,6 +57,7 @@ int main()
                 std::cin >> answer;
             }
     }
+
     if(connectionType==clientCheckShort || connectionType==clientCheck)
     {
         client=true;
@@ -70,10 +73,7 @@ int main()
     float posXplayer1=0;
     float posYplayer1=0;
     sf::Vector2f prevPosition;
-    sf::Vector2f currentPosition;
     sf::Vector2f changingPosition;
-
-    sf::Vector2f positionPlayer2;
     rect2.setSize(sf::Vector2f(20,20));
     rect2.setFillColor(sf::Color::Blue);
     rect1.setSize(sf::Vector2f(20,20));
@@ -135,11 +135,11 @@ int main()
         {
             if(prevPosition != rect1.getPosition())
             {
-                sf::IpAddress recipient = "192.168.178.15";
+                //sf::IpAddress recipient = "192.168.178.15";
                 unsigned short serverPort = 2001;
 
                 posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
-                if (socket.send(posPacket, recipient, serverPort) != sf::Socket::Done)
+                if (socket.send(posPacket, computersAddress, serverPort) != sf::Socket::Done)
                 {
                     //std::cout<<"whoops... some data wasn't sent";
                 }
@@ -150,11 +150,11 @@ int main()
         {
             if(prevPosition != rect1.getPosition())
             {
-                sf::IpAddress recipient = "192.168.178.15";
+                //sf::IpAddress recipient = "192.168.178.15";
                 unsigned short serverPort = 2000;
 
                 posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
-                if (socket.send(posPacket, recipient, serverPort) != sf::Socket::Done)
+                if (socket.send(posPacket, computerID[port], serverPort) != sf::Socket::Done)
                 {
                     //std::cout<<"whoops... some data wasn't sent";
                 }
@@ -167,6 +167,7 @@ int main()
         {
             //std::cout<<"whoops... some data wasn't received";
         }
+        std::cout<<sender;
         if(posPacket>>changingPosition.x>>changingPosition.y)
         rect2.setPosition(changingPosition);
 
