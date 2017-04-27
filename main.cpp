@@ -69,8 +69,6 @@ int main()
     sf::RectangleShape rect2;
     float posXplayer1=0;
     float posYplayer1=0;
-    float posXplayer2=0;
-    float posYplayer2=0;
     sf::Vector2f prevPosition;
     sf::Vector2f currentPosition;
     sf::Vector2f changingPosition;
@@ -133,18 +131,35 @@ int main()
         }
 
         sf::Packet posPacket;
-        if(prevPosition != rect1.getPosition())
+        if(server==true)
         {
-            sf::IpAddress recipient = "192.168.178.15";
-            //if(client==true)
-            unsigned short port = 2000;
-
-            posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
-            if (socket.send(posPacket, recipient, port) != sf::Socket::Done)
+            if(prevPosition != rect1.getPosition())
             {
-                //std::cout<<"whoops... some data wasn't sent";
-            }
+                sf::IpAddress recipient = "192.168.178.15";
+                unsigned short serverPort = 2001;
 
+                posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
+                if (socket.send(posPacket, recipient, serverPort) != sf::Socket::Done)
+                {
+                    //std::cout<<"whoops... some data wasn't sent";
+                }
+
+            }
+        }
+        if(client==true)
+        {
+            if(prevPosition != rect1.getPosition())
+            {
+                sf::IpAddress recipient = "192.168.178.15";
+                unsigned short serverPort = 2000;
+
+                posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
+                if (socket.send(posPacket, recipient, serverPort) != sf::Socket::Done)
+                {
+                    //std::cout<<"whoops... some data wasn't sent";
+                }
+
+            }
         }
         sf::IpAddress sender;
         unsigned short port;
