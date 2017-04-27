@@ -39,6 +39,7 @@ int main()
     if(connectionType==serverCheckShort || connectionType==serverCheck)
     {
             server=true;
+            std::cout<<"looking for client... \n";
             std::cout<<"Please type (ready) if everyone is ready: \n";
             std::string answer="a";
             while(answer != "r" && answer !="ready")
@@ -48,7 +49,7 @@ int main()
                 socket.receive(buffer,sizeof(buffer), received, rIp, port);
                 if(received >0)
                 {
-                    std::cout<<rIp<<" connected \n";
+                    std::cout<<"connected with client \n";
                     computerID[port] = rIp;
                 }
                 std::cin >> answer;
@@ -70,8 +71,10 @@ int main()
     float posYplayer1=0;
     float posXplayer2=0;
     float posYplayer2=0;
-    float prevPositionX;
-    float prevPositionY;
+    sf::Vector2f prevPosition;
+    sf::Vector2f currentPosition;
+    sf::Vector2f changingPosition;
+
     sf::Vector2f positionPlayer2;
     rect2.setSize(sf::Vector2f(20,20));
     rect2.setFillColor(sf::Color::Blue);
@@ -99,14 +102,20 @@ int main()
            if(Event.type == sf::Event::LostFocus)
                update = false;
         }
-        prevPositionX = rect1.getPosition().x;
-        prevPositionY = rect1.getPosition().y;
+        prevPosition = rect1.getPosition();
+       // prevPositionY = rect1.getPosition().y;
         if(update)
         {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)
                 || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
             {
                     posXplayer1+=3;
+                    rect1.setPosition(posXplayer1, posYplayer1);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)
+                || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            {
+                    posXplayer1-=3;
                     rect1.setPosition(posXplayer1, posYplayer1);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)
@@ -121,66 +130,30 @@ int main()
                 posYplayer1+=3;
                 rect1.setPosition(posXplayer1, posYplayer1);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)
-                || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            {
-                    posXplayer1-=3;
-                    rect1.setPosition(posXplayer1, posYplayer1);
-            }
         }
-        sf::Packet posPacketX;
-        sf::Packet posPacketY;
-        sf::IpAddress recipient = "192.168.178.15";
-        unsigned short port2 = 2000;
-        unsigned short port1 = 2001;
-        if(prevPositionX != rect1.getPosition().x)
+
+        sf::Packet posPacket;
+        if(prevPosition != rect1.getPosition())
         {
-            //std::cout<<"y u no working \n";
-            if(server==true)
+            sf::IpAddress recipient = "192.168.178.15";
+            //if(client==true)
+            unsigned short port = 2000;
+
+            posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
+            if (socket.send(posPacket, recipient, port) != sf::Socket::Done)
             {
-                posPacketX << rect1.getPosition().x; //<< rect1.getPosition().y;
-                socket.send(posPacketX, recipient, port1);
+                //std::cout<<"whoops... some data wasn't sent";
             }
-            if(client==true)
-            {
-                posPacketX << rect1.getPosition().x; //<< rect1.getPosition().y;
-                socket.send(posPacketX, recipient, port2);
-            }
-        }
-        if(prevPositionY != rect1.getPosition().y)
-        {
-            //std::cout<<"y u no working \n";
-            if(server==true)
-            {
-                posPacketY << rect1.getPosition().y; //<< rect1.getPosition().y;
-                socket.send(posPacketY, recipient, port1);
-            }
-            if(client==true)
-            {
-                posPacketY << rect1.getPosition().y; //<< rect1.getPosition().y;
-                socket.send(posPacketY, recipient, port2);
-            }
-        }
-        if(server==true)
-        {
-            socket.receive(posPacketY, recipient, port2);
-            socket.receive(posPacketX, recipient, port2);
 
         }
-        if(client==true)
+        sf::IpAddress sender;
+        unsigned short port;
+        if (socket.receive(posPacket,sender,port) != sf::Socket::Done)
         {
-            socket.receive(posPacketY, recipient, port1);
-            socket.receive(posPacketX, recipient, port1);
-
+            //std::cout<<"whoops... some data wasn't received";
         }
-        if( posPacketY >> posYplayer2 || posPacketX >> posXplayer2)
-        {
-            rect2.setPosition(posXplayer2, posYplayer2);
-        }
-        /*else if(posPacketY >> posYplayer2)
-        {
-            rect2.setPosition(posXplayer2, posYplayer2);
-        }*/
+        if(posPacket>>changingPosition.x>>changingPosition.y)
+        rect2.setPosition(changingPosition);
 
         window.clear();
         window.draw(rect1);
