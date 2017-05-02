@@ -135,11 +135,11 @@ int main()
         {
             if(prevPosition != rect1.getPosition())
             {
-                //sf::IpAddress recipient = "192.168.178.15";
-                unsigned short serverPort = 2001;
+                sf::IpAddress recipient = "10.200.238.111";
+                unsigned short clientPort = 2001;
 
                 posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
-                if (socket.send(posPacket, computersAddress, serverPort) != sf::Socket::Done)
+                if (socket.send(posPacket, recipient, clientPort) != sf::Socket::Done)
                 {
                     //std::cout<<"whoops... some data wasn't sent";
                 }
@@ -150,11 +150,11 @@ int main()
         {
             if(prevPosition != rect1.getPosition())
             {
-                //sf::IpAddress recipient = "192.168.178.15";
+                sf::IpAddress recipient = "10.200.238.111";
                 unsigned short serverPort = 2000;
 
                 posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
-                if (socket.send(posPacket, computerID[port], serverPort) != sf::Socket::Done)
+                if (socket.send(posPacket, recipient, serverPort) != sf::Socket::Done)
                 {
                     //std::cout<<"whoops... some data wasn't sent";
                 }
@@ -167,7 +167,7 @@ int main()
         {
             //std::cout<<"whoops... some data wasn't received";
         }
-        std::cout<<sender;
+       // std::cout<<sender;
         if(posPacket>>changingPosition.x>>changingPosition.y)
         rect2.setPosition(changingPosition);
 
