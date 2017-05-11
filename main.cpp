@@ -11,8 +11,10 @@ using namespace std;
 
 int main()
 {
-    sf::IpAddress computersAddress = sf::IpAddress::getLocalAddress();
-    std::cout<<computersAddress ;
+    //sf::IpAddress computersAddress = sf::IpAddress::getLocalAddress();
+    //std::cout<<computersAddress ;
+    sf::IpAddress clientIP;
+    sf::IpAddress sendIP;
     bool server =false;
     bool client =false;
     sf::UdpSocket socket;
@@ -24,7 +26,6 @@ int main()
     char buffer[2000];
 
     std::size_t received;
-    std::map<unsigned short, sf::IpAddress> computerID;
     std::string text = "Connected to: ";
 
     std::cout <<"Enter (server) for server, Enter (client) for client: \n";
@@ -49,11 +50,13 @@ int main()
                 sf::IpAddress rIp;
                 unsigned short port;
                 socket.receive(buffer,sizeof(buffer), received, rIp, port);
-                if(received >0)
+                /*if(received >0)
                 {
                     std::cout<<"connected with client \n";
                     computerID[port] = rIp;
-                }
+                }*/
+                clientIP=rIp;
+                std::cout<<clientIP;
                 std::cin >> answer;
             }
     }
@@ -64,7 +67,7 @@ int main()
         std::string sIP;
         std::cout << "Enter server ip: ";
         std::cin>> sIP;
-        sf::IpAddress sendIP(sIP);
+        /*sf::IpAddress*/ sendIP=sIP;
         socket.send(text.c_str(), text.length() +1, sendIP, 2000);
     }
 
@@ -135,7 +138,7 @@ int main()
         {
             if(prevPosition != rect1.getPosition())
             {
-                sf::IpAddress recipient = "10.200.238.111";
+                sf::IpAddress recipient = clientIP;
                 unsigned short clientPort = 2001;
 
                 posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
@@ -150,7 +153,7 @@ int main()
         {
             if(prevPosition != rect1.getPosition())
             {
-                sf::IpAddress recipient = "10.200.238.111";
+                sf::IpAddress recipient = sendIP;
                 unsigned short serverPort = 2000;
 
                 posPacket<<rect1.getPosition().x <<rect1.getPosition().y;
